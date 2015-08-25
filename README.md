@@ -29,10 +29,10 @@ Out of the box the Google test keys are used to test the functionality. It is ad
 ## Installation Steps
 1. Download the module with the widget included from the Mendix appstore.
 2. Include the provided after startup microflow "ASU_reCAPTCHA2" in your application startup.
-2. Assign the provided settings snippet to a settings page and add it to the navigation of your app. (Administrator)
-3. Create/use the site keys [at Google](https://www.google.com/recaptcha/admin#createsite) and include them in Mendix app via the settings page/snippet.
-4. Include the reCAPTCHA2 widget on a public page with form/dataview.
-5. Configure the reCAPTCHA2 widget to write the response token to an attribute of the context entity.
-5. Configure the reCAPTCHA2 widget to read the site key via the provided "GET_Sitekey" microflow.
-6. Model a microflow to handle the submit/save action.
-7. Use the provided validation microflow "SUB_GoogleRecaptcha_Siteverify" to verify the provided response token of the entity and take proper actions.
+3. Assign the provided settings snippet to a settings page and add it to the navigation of your app. (Administrator)
+4. Create/use the site keys [at Google](https://www.google.com/recaptcha/admin#createsite) and include them in Mendix app via the settings page/snippet.
+5. Include the reCAPTCHA2 widget on a public page with form/dataview.
+6. Configure the reCAPTCHA2 widget to write the response token to an attribute of the context entity.
+7. Configure the reCAPTCHA2 widget to read the site key via the provided "GET_Sitekey" microflow.
+8. Model a microflow to handle the submit/save action.
+9. Use the provided validation microflow "SUB_GoogleRecaptcha_Siteverify" to verify the provided response token of the entity and take proper actions.
