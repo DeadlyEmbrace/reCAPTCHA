@@ -57,6 +57,20 @@ public class Microflows
 		}
 	}
 
+	public static recaptcha.proxies.TestForm gET_TestForm(IContext context)
+	{
+		try
+		{
+			Map<String, Object> params = new HashMap<String, Object>();
+			IMendixObject result = (IMendixObject)Core.execute(context, "reCAPTCHA.GET_TestForm", params);
+			return result == null ? null : recaptcha.proxies.TestForm.initialize(context, result);
+		}
+		catch (CoreException e)
+		{
+			throw new MendixRuntimeException(e);
+		}
+	}
+
 	public static boolean sUB_GoogleRecaptcha_Siteverify(IContext context, String _responseToken)
 	{
 		try

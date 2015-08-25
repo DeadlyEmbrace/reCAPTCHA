@@ -11,7 +11,8 @@ For more information on contributing to this repository visit [Contributing to a
 If you want Google reCAPTCHA to be used in your public form pages to prevent bot messages.
 
 ## Dependencies
-To provide server side validation of the response token we use the [Rest Services](https://appstore.home.mendix.com/link/app/997/Mendix/Rest-Services) module from the Mendix appstore.
+- To provide server side validation of the response token we use the [Rest Services](https://appstore.home.mendix.com/link/app/997/Mendix/Rest-Services) module from the Mendix appstore.
+- The [Rest Services](https://appstore.home.mendix.com/link/app/997/Mendix/Rest-Services) module depends on the [Community Commons](https://appstore.home.mendix.com/link/app/170/Mendix/Community-Commons-Function-Library) module, so this is also mandatory if you use the module mentioned above.
 
 ## Description
 
