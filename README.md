@@ -1,4 +1,4 @@
-# Google reCAPTCHA (v2.0) for Mendix
+# Google reCAPTCHA (v1 + v2) for Mendix
 
 Protect your Mendix app from spam and abuse while letting real people pass through with ease.
 
@@ -17,8 +17,8 @@ If you want Google reCAPTCHA to be used in your public form pages to prevent bot
 ## Description
 
 This Google reCAPTCHA funcitonality for Mendix consists out of two components.
-You have the custom Mendix widget to render the Google reCAPTCHA (v2.0) widget within the Mendix front-end.
-And there is a module that contains the server side validation of the Google reCAPTCHA response token.
+You have the custom Mendix widget to render the Google reCAPTCHA (v1 + v2) widget within the Mendix front-end.
+And there is a module that contains the server side validation (v1 + v2) of the Google reCAPTCHA response token.
 
 A test project is included to have an example on how to implement the Google reCAPTCHA functionality.
 The credentials are:
@@ -29,11 +29,12 @@ Out of the box the Google test keys are used to test the functionality. It is ad
 
 ## Installation Steps
 1. Download the module with the widget included from the Mendix appstore.
-2. Include the provided after startup microflow "ASU_reCAPTCHA2" in your application startup.
+2. Include the provided after startup microflow "ASU_reCAPTCHA" in your application startup.
 3. Assign the provided settings snippet to a settings page and add it to the navigation of your app. (Administrator)
 4. Create/use the site keys [at Google](https://www.google.com/recaptcha/admin#createsite) and include them in Mendix app via the settings page/snippet.
-5. Include the reCAPTCHA2 widget on a public page with form/dataview.
-6. Configure the reCAPTCHA2 widget to write the response token to an attribute of the context entity.
-7. Configure the reCAPTCHA2 widget to read the site key via the provided "GET_Sitekey" microflow.
+5. Include the reCAPTCHA widget on a public page with form/dataview.
+6. Configure the reCAPTCHA widget to write the response token to an attribute of the context entity.
+(For v1 you also need to specify the "action button" name of your submit button, else the response is not set to the entity.)
+7. Configure the reCAPTCHA widget to read the site key via the provided "GET_Sitekey" microflow.
 8. Model a microflow to handle the submit/save action.
-9. Use the provided validation microflow "SUB_GoogleRecaptcha_Siteverify" to verify the provided response token of the entity and take proper actions.
+9. Use the provided validation microflow "SUB_GoogleRecaptcha_Siteverify_V1" or "SUB_GoogleRecaptcha_Siteverify_V2" to verify the provided response (token) of the entity and take proper actions.
