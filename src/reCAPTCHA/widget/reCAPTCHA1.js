@@ -1,14 +1,14 @@
 /*jslint white:true, nomen: true, plusplus: true, vars:true */
 /*jshint browser:true */
-/*global mx, define, require, browser, devel, console, document, grecaptcha, mendix */
+/*global mx, define, require, browser, devel, console, document, Recaptcha, mendix */
 /*
     reCAPTCHA2
     ========================
 
-    @file      : reCAPTCHA2.js
+    @file      : reCAPTCHA1.js
     @version   : 1.0
     @author    : Marcus Groen
-    @date      : Fri, 14 Aug 2015 11:32:27 GMT
+    @date      : Fri, 23 Oct 2015 13:00:00 GMT
     @copyright : Incentro
     @license   : Apache 2.0
 
@@ -23,7 +23,7 @@ define([
     'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry',
     'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array',
     'dojo/_base/lang', 'dojo/text', 'dojo/html', 'dojo/_base/event',
-    'reCAPTCHA/lib/jquery-1.11.2', 'dojo/text!reCAPTCHA/widget/template/reCAPTCHA2.html'
+    'reCAPTCHA/lib/jquery-1.11.2', 'dojo/text!reCAPTCHA/widget/template/reCAPTCHA1.html'
 ], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp,
               domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, html, event,
               _jQuery, widgetTemplate) {
@@ -32,7 +32,7 @@ define([
     var $ = _jQuery.noConflict(true);
     
     // Declare widget's prototype.
-    return declare('reCAPTCHA.widget.reCAPTCHA2', [_WidgetBase, _TemplatedMixin], {
+    return declare('reCAPTCHA.widget.reCAPTCHA1', [_WidgetBase, _TemplatedMixin], {
 
         // _TemplatedMixin will create our dom node using this HTML template.
         templateString: widgetTemplate,
@@ -49,8 +49,8 @@ define([
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             this._handles = [];
-            if (typeof window._grecaptcha_widgets === "undefined") {
-                window._grecaptcha_widgets = [];
+            if (typeof window._grecaptcha1_widgets === "undefined") {
+                window._grecaptcha1_widgets = [];
             }
         },
 
@@ -64,9 +64,9 @@ define([
             domConstruct.place(this._recaptchaNode, this.id);
 
             // recaptcha api script
-            if (window.__google_recaptcha_client !== true && $("#google_recaptcha_script").length === 0) {
+            if (typeof window.Recaptcha === "undefined" && $("#google_recaptcha1_script").length === 0) {
                 try {
-                    this._googleRecaptchaApiScript = domConstruct.create("script", {"src" : ("https:" === document.location.protocol ? "https" : "http") + "://www.google.com/recaptcha/api.js?render=explicit",  "id":"google_recaptcha_script", "async":"true", "defer":"true"});
+                    this._googleRecaptchaApiScript = domConstruct.create("script", {"src" : ("https:" === document.location.protocol ? "https" : "http") + "://www.google.com/recaptcha/api/js/recaptcha_ajax.js",  "id":"google_recaptcha1_script", "async":"true", "defer":"true"});
                     domConstruct.place(this._googleRecaptchaApiScript, domQuery("head")[0]);
                 } catch(e) {
                     console.error("Failed to include Google Recaptcha script tag: " + e.message);
@@ -120,9 +120,11 @@ define([
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
-            if (window.__google_recaptcha_client === true) {
-                grecaptcha.reset(this._widgetId);
-                window._grecaptcha_widgets.splice(dojoArray.indexOf(this._widgetId),1);
+            if (typeof window.Recaptcha !== "undefined") {
+                if (typeof window.RecaptchaState !== "undefined") {
+                    window.Recaptcha.destroy();
+                }
+                window._grecaptcha1_widgets.splice(dojoArray.indexOf(this.id),1);
             }
         },
 
@@ -130,29 +132,38 @@ define([
         _grecaptchaRender: function () {
             // define recaptcha render options
             this._renderOptions = $.extend({},{
-                "sitekey": (this._siteKey !== null) ? this._siteKey : "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
                 "theme": (this.themeString !== "") ? this.themeString : undefined,
-                "type": (this.typeString !== "") ? this.typeString : undefined,
-                "size": (this.sizeString !== "") ? this.sizeString : undefined,
+                "lang": (this.langString !== "") ? this.langString : undefined,
                 "tabindex": (this.tabIndexInteger > 0 ) ? this.tabIndexInteger : 0,
-                "callback": lang.hitch(this,function(response){
-                    // store response token in entity for server side validation
-                    this._contextObj.set(this.responseTokenAttribute, response);
+                "callback": lang.hitch(this,function(){
+                    var challenge = window.Recaptcha.get_challenge();
+                    this._contextObj.set(this.challengeAttribute, challenge);
                 })
             });
             // render widget
             this._startTime = new Date().getTime();
-            if (typeof grecaptcha !== 'undefined') {
+            if (typeof window.Recaptcha !== 'undefined') {
                 try {
-                    this._widgetId = grecaptcha.render(this.id + "-recaptcha", this._renderOptions);
-                    window._grecaptcha_widgets.push(this._widgetId);
+                    if ($(".btn.mx-button.mx-name-" + this.btnName).length !== 0) {
+                        $(".btn.mx-button.mx-name-" + this.btnName).mousedown(lang.hitch(this,function(e){
+                            var challenge = window.Recaptcha.get_challenge();
+                            this._contextObj.set(this.challengeAttribute, challenge);
+                            var response = window.Recaptcha.get_response();
+                            this._contextObj.set(this.responseTokenAttribute, response);
+                        }));
+                        var siteKey = (this._siteKey !== null) ? this._siteKey : "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+                        window.Recaptcha.create(siteKey, this.id + "-recaptcha", this._renderOptions);
+                        window._grecaptcha1_widgets.push(this.id);
+                    } else {
+                        console.error("Failed to render recaptcha widget, Mendix action button not found.");
+                    }
                 } catch(e) {
                     console.error("Failed to render recaptcha widget: " + e.message);
                 }
             } else {
                 var duration =  new Date().getTime() - this._startTime;
                 if (duration > 15000) {
-                    console.warn("Recaptcha widget " + this.id + " timeout, grecaptcha is undefined.");
+                    console.warn("Recaptcha widget " + this.id + " timeout, Recaptcha is undefined.");
                     return;
                 }
                 setTimeout(lang.hitch(this,this._grecaptchaRender),250);
@@ -181,42 +192,28 @@ define([
             }
 
             // When a mendix object exists create subscribtions. 
-            /*if (this._contextObj) {
+            if (this._contextObj) {
 
                 _objectHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
-                    callback: lang.hitch(this, function (guid) {
+                    callback: lang.hitch(this,function(guid){
                         try {
-                            grecaptcha.reset(this._widgetId);
+                            if (typeof window.Recaptcha !== 'undefined') {
+                                if (typeof window.RecaptchaState !== 'undefined') {
+                                    window.Recaptcha.reload();
+                                }
+                            }
                         } catch(e) {
-                            console.error("Failed to reset recaptcha widget: " + e.message);
+                            console.error("Failed to reload recaptcha widget: " + e.message);
                         }
                     })
                 });
 
-                _attrHandle = this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    attr: this.responseTokenAttribute,
-                    callback: lang.hitch(this, function (guid, attr, attrValue) {
-                        try {
-                            grecaptcha.reset(this._widgetId);
-                        } catch(e) {
-                            console.error("Failed to reset recaptcha widget: " + e.message);
-                        }
-                    })
-                });
-
-                _validationHandle = this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    val: true,
-                    callback: lang.hitch(this, this._handleValidation)
-                });
-
-                this._handles = [_objectHandle, _attrHandle, _validationHandle];
-            }*/
+                this._handles = [_objectHandle];
+            }
         }
     });
 });
-require(['reCAPTCHA/widget/reCAPTCHA2'], function () {
+require(['reCAPTCHA/widget/reCAPTCHA1'], function () {
     'use strict';
 });

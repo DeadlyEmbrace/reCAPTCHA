@@ -57,13 +57,14 @@ public class Microflows
 		}
 	}
 
-	public static recaptcha.proxies.TestForm gET_TestForm(IContext context)
+	public static boolean sUB_GoogleRecaptcha_Siteverify_V1(IContext context, String _responseToken, String _challenge)
 	{
 		try
 		{
 			Map<String, Object> params = new HashMap<String, Object>();
-			IMendixObject result = (IMendixObject)Core.execute(context, "reCAPTCHA.GET_TestForm", params);
-			return result == null ? null : recaptcha.proxies.TestForm.initialize(context, result);
+			params.put("ResponseToken", _responseToken);
+			params.put("Challenge", _challenge);
+			return (Boolean)Core.execute(context, "reCAPTCHA.SUB_GoogleRecaptcha_Siteverify_V1", params);
 		}
 		catch (CoreException e)
 		{
@@ -71,13 +72,13 @@ public class Microflows
 		}
 	}
 
-	public static boolean sUB_GoogleRecaptcha_Siteverify(IContext context, String _responseToken)
+	public static boolean sUB_GoogleRecaptcha_Siteverify_V2(IContext context, String _responseToken)
 	{
 		try
 		{
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("ResponseToken", _responseToken);
-			return (Boolean)Core.execute(context, "reCAPTCHA.SUB_GoogleRecaptcha_Siteverify", params);
+			return (Boolean)Core.execute(context, "reCAPTCHA.SUB_GoogleRecaptcha_Siteverify_V2", params);
 		}
 		catch (CoreException e)
 		{

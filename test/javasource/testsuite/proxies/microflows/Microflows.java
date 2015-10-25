@@ -143,13 +143,27 @@ public class Microflows
 		}
 	}
 
-	public static void iVK_VerifyServerSide(IContext context, testsuite.proxies.Color _color)
+	public static String iVK_VerifyServerSide_V1(IContext context, testsuite.proxies.Color _color)
 	{
 		try
 		{
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("Color", _color == null ? null : _color.getMendixObject());
-			Core.execute(context, "TestSuite.IVK_VerifyServerSide", params);
+			return (String)Core.execute(context, "TestSuite.IVK_VerifyServerSide_V1", params);
+		}
+		catch (CoreException e)
+		{
+			throw new MendixRuntimeException(e);
+		}
+	}
+
+	public static void iVK_VerifyServerSide_V2(IContext context, testsuite.proxies.Color _color)
+	{
+		try
+		{
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("Color", _color == null ? null : _color.getMendixObject());
+			Core.execute(context, "TestSuite.IVK_VerifyServerSide_V2", params);
 		}
 		catch (CoreException e)
 		{

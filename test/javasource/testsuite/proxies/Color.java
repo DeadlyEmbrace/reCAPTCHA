@@ -33,7 +33,8 @@ public class Color
 		RAL("RAL"),
 		IsPrimary("IsPrimary"),
 		ColorCode("ColorCode"),
-		ResponseToken("ResponseToken");
+		ResponseToken("ResponseToken"),
+		Challenge("Challenge");
 
 		private String metaName;
 
@@ -298,6 +299,42 @@ public class Color
 	public final void setResponseToken(IContext context, String responsetoken)
 	{
 		getMendixObject().setValue(context, MemberNames.ResponseToken.toString(), responsetoken);
+	}
+
+	/**
+	 * @return value of Challenge
+	 */
+	public final String getChallenge()
+	{
+		return getChallenge(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of Challenge
+	 */
+	public final String getChallenge(IContext context)
+	{
+		return (String) getMendixObject().getValue(context, MemberNames.Challenge.toString());
+	}
+
+	/**
+	 * Set value of Challenge
+	 * @param challenge
+	 */
+	public final void setChallenge(String challenge)
+	{
+		setChallenge(getContext(), challenge);
+	}
+
+	/**
+	 * Set value of Challenge
+	 * @param context
+	 * @param challenge
+	 */
+	public final void setChallenge(IContext context, String challenge)
+	{
+		getMendixObject().setValue(context, MemberNames.Challenge.toString(), challenge);
 	}
 
 	/**

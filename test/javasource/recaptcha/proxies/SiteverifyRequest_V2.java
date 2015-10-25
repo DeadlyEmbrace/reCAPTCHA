@@ -13,16 +13,16 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
 /**
  * 
  */
-public class SiteverifyRequest
+public class SiteverifyRequest_V2
 {
-	private final IMendixObject siteverifyRequestMendixObject;
+	private final IMendixObject siteverifyRequest_V2MendixObject;
 
 	private final IContext context;
 
 	/**
 	 * Internal name of this entity
 	 */
-	public static final String entityName = "reCAPTCHA.SiteverifyRequest";
+	public static final String entityName = "reCAPTCHA.SiteverifyRequest_V2";
 
 	/**
 	 * Enum describing members of this entity
@@ -46,44 +46,44 @@ public class SiteverifyRequest
 		}
 	}
 
-	public SiteverifyRequest(IContext context)
+	public SiteverifyRequest_V2(IContext context)
 	{
-		this(context, Core.instantiate(context, "reCAPTCHA.SiteverifyRequest"));
+		this(context, Core.instantiate(context, "reCAPTCHA.SiteverifyRequest_V2"));
 	}
 
-	protected SiteverifyRequest(IContext context, IMendixObject siteverifyRequestMendixObject)
+	protected SiteverifyRequest_V2(IContext context, IMendixObject siteverifyRequest_V2MendixObject)
 	{
-		if (siteverifyRequestMendixObject == null)
+		if (siteverifyRequest_V2MendixObject == null)
 			throw new IllegalArgumentException("The given object cannot be null.");
-		if (!Core.isSubClassOf("reCAPTCHA.SiteverifyRequest", siteverifyRequestMendixObject.getType()))
-			throw new IllegalArgumentException("The given object is not a reCAPTCHA.SiteverifyRequest");
+		if (!Core.isSubClassOf("reCAPTCHA.SiteverifyRequest_V2", siteverifyRequest_V2MendixObject.getType()))
+			throw new IllegalArgumentException("The given object is not a reCAPTCHA.SiteverifyRequest_V2");
 
-		this.siteverifyRequestMendixObject = siteverifyRequestMendixObject;
+		this.siteverifyRequest_V2MendixObject = siteverifyRequest_V2MendixObject;
 		this.context = context;
 	}
 
 	/**
-	 * @deprecated Use 'SiteverifyRequest.load(IContext, IMendixIdentifier)' instead.
+	 * @deprecated Use 'SiteverifyRequest_V2.load(IContext, IMendixIdentifier)' instead.
 	 */
 	@Deprecated
-	public static recaptcha.proxies.SiteverifyRequest initialize(IContext context, IMendixIdentifier mendixIdentifier) throws CoreException
+	public static recaptcha.proxies.SiteverifyRequest_V2 initialize(IContext context, IMendixIdentifier mendixIdentifier) throws CoreException
 	{
-		return recaptcha.proxies.SiteverifyRequest.load(context, mendixIdentifier);
+		return recaptcha.proxies.SiteverifyRequest_V2.load(context, mendixIdentifier);
 	}
 
 	/**
 	 * Initialize a proxy using context (recommended). This context will be used for security checking when the get- and set-methods without context parameters are called.
 	 * The get- and set-methods with context parameter should be used when for instance sudo access is necessary (IContext.getSudoContext() can be used to obtain sudo access).
 	 */
-	public static recaptcha.proxies.SiteverifyRequest initialize(IContext context, IMendixObject mendixObject)
+	public static recaptcha.proxies.SiteverifyRequest_V2 initialize(IContext context, IMendixObject mendixObject)
 	{
-		return new recaptcha.proxies.SiteverifyRequest(context, mendixObject);
+		return new recaptcha.proxies.SiteverifyRequest_V2(context, mendixObject);
 	}
 
-	public static recaptcha.proxies.SiteverifyRequest load(IContext context, IMendixIdentifier mendixIdentifier) throws CoreException
+	public static recaptcha.proxies.SiteverifyRequest_V2 load(IContext context, IMendixIdentifier mendixIdentifier) throws CoreException
 	{
 		IMendixObject mendixObject = Core.retrieveId(context, mendixIdentifier);
-		return recaptcha.proxies.SiteverifyRequest.initialize(context, mendixObject);
+		return recaptcha.proxies.SiteverifyRequest_V2.initialize(context, mendixObject);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class SiteverifyRequest
 	 */
 	public final IMendixObject getMendixObject()
 	{
-		return siteverifyRequestMendixObject;
+		return siteverifyRequest_V2MendixObject;
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class SiteverifyRequest
 
 		if (obj != null && getClass().equals(obj.getClass()))
 		{
-			final recaptcha.proxies.SiteverifyRequest that = (recaptcha.proxies.SiteverifyRequest) obj;
+			final recaptcha.proxies.SiteverifyRequest_V2 that = (recaptcha.proxies.SiteverifyRequest_V2) obj;
 			return getMendixObject().equals(that.getMendixObject());
 		}
 		return false;
@@ -230,7 +230,7 @@ public class SiteverifyRequest
 	 */
 	public static String getType()
 	{
-		return "reCAPTCHA.SiteverifyRequest";
+		return "reCAPTCHA.SiteverifyRequest_V2";
 	}
 
 	/**
