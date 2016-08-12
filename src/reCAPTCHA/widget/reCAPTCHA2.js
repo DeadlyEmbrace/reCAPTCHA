@@ -1,6 +1,6 @@
-/*jslint white:true, nomen: true, plusplus: true, vars:true */
+/*jslint white:true, nomen: true, plusplus: true, vars:true, unparam:true */
 /*jshint browser:true */
-/*global mx, define, require, browser, devel, console, document, grecaptcha, mendix */
+/*global mx, define, require, browser, devel, console, document, grecaptcha, mendix, window, setTimeout */
 /*
     reCAPTCHA2
     ========================
@@ -30,7 +30,7 @@ define([
     'use strict';
 
     var $ = _jQuery.noConflict(true);
-    
+
     // Declare widget's prototype.
     return declare('reCAPTCHA.widget.reCAPTCHA2', [_WidgetBase, _TemplatedMixin], {
 
@@ -49,14 +49,14 @@ define([
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             this._handles = [];
-            if (typeof window._grecaptcha_widgets === "undefined") {
+            if (window._grecaptcha_widgets === undefined) {
                 window._grecaptcha_widgets = [];
             }
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            
+
             // create recaptcha placeholder
             this._recaptchaNode = domConstruct.create("div", {
                 "id" : this.id + "-recaptcha"
@@ -66,27 +66,20 @@ define([
             // recaptcha api script
             if (window.__google_recaptcha_client !== true && $("#google_recaptcha_script").length === 0) {
                 try {
-                    this._googleRecaptchaApiScript = domConstruct.create("script", {"src" : ("https:" === document.location.protocol ? "https" : "http") + "://www.google.com/recaptcha/api.js?render=explicit",  "id":"google_recaptcha_script", "async":"true", "defer":"true"});
+                    this._googleRecaptchaApiScript = domConstruct.create("script", {"src" : ("https:" === document.location.protocol ? "https" : "http") + "://www.google.com/recaptcha/api.js?render=explicit&hl=" + this.languageString,  "id":"google_recaptcha_script", "async":"true", "defer":"true"});
                     domConstruct.place(this._googleRecaptchaApiScript, domQuery("head")[0]);
                 } catch(e) {
                     console.error("Failed to include Google Recaptcha script tag: " + e.message);
                 }
             }
-            
-        },
 
-        // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
-        update: function (object, callback) {
-
-            this._contextObj = object;
-            
-            // get sitekey from microflow
+            // get sitekey from microflow and render widget
             if (this.mfGetSiteKey !== "" && this.siteKeyAttribute !== "") {
                 mx.data.action({
                     params: {
                         applyto: 'selection',
                         actionname: this.mfGetSiteKey,
-                        guids: [this._contextObj.getGuid()]
+                        guids: []
                     },
                     callback: lang.hitch(this,function(obj){
                         if (obj) {
@@ -101,21 +94,34 @@ define([
             } else {
                 setTimeout(lang.hitch(this,this._grecaptchaRender),100);
             }
-            
+
+        },
+
+        // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
+        update: function (object, callback) {
+
+            this._contextObj = object;
+
             this._resetSubscriptions();
-            
+
             callback();
-            
+
         },
 
         // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
-        enable: function () {},
+        enable: function () {
+          return;
+        },
 
         // mxui.widget._WidgetBase.enable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
-        disable: function () {},
+        disable: function () {
+          return;
+        },
 
         // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
-        resize: function (box) {},
+        resize: function (box) {
+          return;
+        },
 
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
@@ -136,13 +142,15 @@ define([
                 "size": (this.sizeString !== "") ? this.sizeString : undefined,
                 "tabindex": (this.tabIndexInteger > 0 ) ? this.tabIndexInteger : 0,
                 "callback": lang.hitch(this,function(response){
-                    // store response token in entity for server side validation
-                    this._contextObj.set(this.responseTokenAttribute, response);
+                  // clean all validation messages
+                  this._cleanValidations();
+                  // store response token in entity for server side validation
+                  this._contextObj.set(this.responseTokenAttribute, response);
                 })
             });
             // render widget
             this._startTime = new Date().getTime();
-            if (typeof grecaptcha !== 'undefined') {
+            if (grecaptcha !== undefined && this._widgetId === null) {
                 try {
                     this._widgetId = grecaptcha.render(this.id + "-recaptcha", this._renderOptions);
                     window._grecaptcha_widgets.push(this._widgetId);
@@ -158,19 +166,17 @@ define([
                 setTimeout(lang.hitch(this,this._grecaptchaRender),250);
             }
         },
-        
+
         // We want to stop events on a mobile device
         _stopBubblingEventOnMobile: function (e) {
-            if (typeof document.ontouchstart !== 'undefined') {
+            if (document.ontouchstart !== undefined) {
                 event.stop(e);
             }
         },
 
         // Reset subscriptions.
         _resetSubscriptions: function () {
-            var _objectHandle = null,
-                _attrHandle = null,
-                _validationHandle = null;
+            var _objectHandle = null, /*_attrHandle = null,*/ _validationHandle = null;
 
             // Release handles on previous object, if any.
             if (this._handles) {
@@ -180,43 +186,88 @@ define([
                 this._handles = [];
             }
 
-            // When a mendix object exists create subscribtions. 
-            /*if (this._contextObj) {
+            // When a mendix object exists create subscribtions.
+            if (this._contextObj) {
 
                 _objectHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
-                    callback: lang.hitch(this, function (guid) {
+                    callback: lang.hitch(this, function(guid) {
                         try {
                             grecaptcha.reset(this._widgetId);
+                            this._contextObj.set(this.responseTokenAttribute, "");
                         } catch(e) {
                             console.error("Failed to reset recaptcha widget: " + e.message);
                         }
+                        // clean validation messages
+                        this._cleanValidations();
                     })
                 });
 
+                /*
                 _attrHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
                     attr: this.responseTokenAttribute,
-                    callback: lang.hitch(this, function (guid, attr, attrValue) {
+                    callback: lang.hitch(this, function(guid, attr, attrValue) {
                         try {
                             grecaptcha.reset(this._widgetId);
+                            this._contextObj.set(this.responseTokenAttribute, "");
                         } catch(e) {
                             console.error("Failed to reset recaptcha widget: " + e.message);
                         }
                     })
                 });
+                */
 
                 _validationHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
                     val: true,
-                    callback: lang.hitch(this, this._handleValidation)
+                    callback: lang.hitch(this, function(validations) {
+                      // reset token
+                      try {
+                          grecaptcha.reset(this._widgetId);
+                          this._contextObj.set(this.responseTokenAttribute, "");
+                      } catch(e) {
+                          console.error("Failed to reset recaptcha widget: " + e.message);
+                      }
+                      // clean validation messages
+                      this._cleanValidations();
+                      // show validation message
+                      var validation = validations[0];
+                      var message = validation.getReasonByAttribute(this.responseTokenAttribute);
+                      if (message) {
+                        this._showValidation(message);
+                        validation.removeAttribute(this.responseTokenAttribute);
+                      }
+                    })
                 });
 
-                this._handles = [_objectHandle, _attrHandle, _validationHandle];
-            }*/
+                this._handles = [_objectHandle, /*_attrHandle,*/ _validationHandle];
+            }
+        },
+
+        // clean all validation messages.
+        _cleanValidations: function() {
+          if (this._alertDiv !== null) {
+            domConstruct.destroy(this._alertDiv);
+            this._alertDiv = null;
+          }
+        },
+
+        // Show a validation message.
+        _showValidation: function(message) {
+            if (this._alertDiv !== null) {
+                html.set(this._alertDiv, message);
+            } else {
+              this._alertDiv = domConstruct.create("div", {
+                  "class": "alert alert-danger",
+                  "innerHTML": message
+              });
+              domConstruct.place(this._alertDiv, this.domNode);
+            }
         }
     });
 });
 require(['reCAPTCHA/widget/reCAPTCHA2'], function () {
     'use strict';
+    return;
 });

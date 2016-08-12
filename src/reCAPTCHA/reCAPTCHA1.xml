@@ -51,7 +51,7 @@
             </attributeTypes>
         </property>
         <property key="responseTokenAttribute" type="attribute" required="true">
-            <caption>Response Token</caption>
+            <caption>Response</caption>
             <category>Entity Context</category>
             <description>The recaptcha response to verify server side.</description>
             <attributeTypes>

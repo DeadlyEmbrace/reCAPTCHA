@@ -29,6 +29,21 @@ public class Microflows
 		}
 	}
 
+	public static recaptcha.proxies.SiteKey dummy_SiteKey(IContext context, recaptcha.proxies.Dummy _dummy)
+	{
+		try
+		{
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("Dummy", _dummy == null ? null : _dummy.getMendixObject());
+			IMendixObject result = (IMendixObject)Core.execute(context, "reCAPTCHA.Dummy_SiteKey", params);
+			return result == null ? null : recaptcha.proxies.SiteKey.initialize(context, result);
+		}
+		catch (CoreException e)
+		{
+			throw new MendixRuntimeException(e);
+		}
+	}
+
 	public static recaptcha.proxies.SecretKey gET_SecretKey(IContext context)
 	{
 		try
