@@ -49,7 +49,7 @@ define([
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             this._handles = [];
-            if (window._grecaptcha_widgets === undefined) {
+            if (typeof window._grecaptcha_widgets === "undefined") {
                 window._grecaptcha_widgets = [];
             }
         },
@@ -150,7 +150,7 @@ define([
             });
             // render widget
             this._startTime = new Date().getTime();
-            if (grecaptcha !== undefined && this._widgetId === null) {
+            if (typeof grecaptcha !== "undefined" && this._widgetId === null) {
                 try {
                     this._widgetId = grecaptcha.render(this.id + "-recaptcha", this._renderOptions);
                     window._grecaptcha_widgets.push(this._widgetId);
@@ -169,7 +169,7 @@ define([
 
         // We want to stop events on a mobile device
         _stopBubblingEventOnMobile: function (e) {
-            if (document.ontouchstart !== undefined) {
+            if (typeof document.ontouchstart !== "undefined") {
                 event.stop(e);
             }
         },
