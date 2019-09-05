@@ -1,7 +1,9 @@
 package restservices.consume;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,15 +16,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.cookie.CookieSpec;
@@ -40,9 +35,10 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+
+import com.mendix.thirdparty.org.json.JSONArray;
+import com.mendix.thirdparty.org.json.JSONObject;
+import com.mendix.thirdparty.org.json.JSONTokener;
 
 import restservices.RestServices;
 import restservices.proxies.Cookie;
@@ -69,13 +65,19 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.meta.IMetaAssociation;
 import com.mendix.systemwideinterfaces.core.meta.IMetaAssociation.AssociationType;
 import com.mendix.systemwideinterfaces.core.meta.IMetaObject;
+
 import communitycommons.StringUtils;
 
 public class RestConsumer {
 	private static ThreadLocal<HttpResponseData> lastConsumeError = new ThreadLocal<HttpResponseData>();
 	
+    private static IdleConnectionMonitorThread idleConnectionMonitorThread = null;
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-    static	HttpClient client = new HttpClient(connectionManager);
+    static HttpClient client = new HttpClient(connectionManager);
+    
+	static {
+		connectionManager.getParams().setMaxConnectionsPerHost(HostConfiguration.ANY_HOST_CONFIGURATION, 10);
+	}
     
 	public static class HttpResponseData{
 		private int status;
@@ -179,6 +181,18 @@ public class RestConsumer {
 			nextHeaders.set(headers);
 		}
 		return headers;
+	}
+
+	public static synchronized void setGlobalRequestSettings(Long maxConcurrentRequests, Long timeout) {
+		if (timeout != null) {
+			client.getParams().setConnectionManagerTimeout(timeout);
+			client.getParams().setSoTimeout(timeout.intValue());
+		}
+
+		if (maxConcurrentRequests != null) {
+			connectionManager.getParams().setMaxConnectionsPerHost(HostConfiguration.ANY_HOST_CONFIGURATION, maxConcurrentRequests.intValue());
+			connectionManager.getParams().setMaxTotalConnections(maxConcurrentRequests.intValue() * 2);
+		}
 	}
 	
 	public static void addHeaderToNextRequest(String header, String value) {
@@ -305,7 +319,7 @@ public class RestConsumer {
 
 			@Override
 			public boolean apply(InputStream stream) {
-				JSONTokener x = new JSONTokener(stream);
+				JSONTokener x = new JSONTokener(new BufferedReader(new InputStreamReader(stream)));
 				//Based on: https://github.com/douglascrockford/JSON-java/blob/master/JSONArray.java
 				if (x.nextClean() != '[') 
 		            throw x.syntaxError("A JSONArray text must start with '['");
@@ -343,6 +357,22 @@ public class RestConsumer {
 		Credentials defaultcreds = new UsernamePasswordCredentials(username, password);
 		URL url = new URL(urlBasePath);
 		client.getState().setCredentials(new AuthScope(url.getHost(), url.getPort(), AuthScope.ANY_REALM), defaultcreds);
+	}
+	
+	public static void registerNTCredentials(String urlBasePath, String username, String password, String domain) throws MalformedURLException
+	{
+		client.getParams().setAuthenticationPreemptive(true);
+		URL url = new URL(urlBasePath);
+		Core.getLogger("NTLM").info(url.getHost());
+		Credentials defaultcreds = new NTCredentials(username, password, url.getHost(), domain);
+		
+		AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, restservices.util.JCIFS_NTLMScheme.class);
+		
+		List<String> authpref = new ArrayList<String>();
+		authpref.add(AuthPolicy.NTLM);
+		
+		client.getParams().setParameter("http.auth.target-scheme-pref", authpref);
+		client.getState().setCredentials(new AuthScope(AuthScope.ANY), defaultcreds);
 	}
 
 	private static void getCollectionHelper(final IContext context, String collectionUrl, final Function<IContext, IMendixObject> objectFactory, final Function<IMendixObject, Boolean> callback) throws Exception
@@ -452,9 +482,12 @@ public class RestConsumer {
 		}
 		else if (asFormData && !isFileSource)
 			requestHeaders.put(RestServices.HEADER_CONTENTTYPE, RestServices.CONTENTTYPE_FORMENCODED);
-		else if (data != null && data.length() != 0)
+		else if (data != null && data.length() != 0) {				
 			requestEntity = new StringRequestEntity(data.toString(4), RestServices.CONTENTTYPE_APPLICATIONJSON, RestServices.UTF8);
-		
+			if (RestServices.LOGCONSUME.isDebugEnabled()) {
+				RestServices.LOGCONSUME.debug("[Body JSON Data] " + data.toString());
+			}
+		}
 		final StringBuilder bodyBuffer = new StringBuilder();
 		HttpResponseData response = doRequest(method.toString(), url, requestHeaders, params, requestEntity, new Predicate<InputStream>() {
 
@@ -707,5 +740,16 @@ public class RestConsumer {
 			return null;
 		lastConsumeError.set(null);
 		return res.asRequestResult(context);
+	}
+
+	public static boolean startIdleConnectionMonitor(long interval, long maxIdleTime)
+	{
+		if (idleConnectionMonitorThread != null)
+			return false;
+		
+		idleConnectionMonitorThread = new IdleConnectionMonitorThread(connectionManager, interval, maxIdleTime);
+		idleConnectionMonitorThread.start();
+		
+		return true;
 	}
 }

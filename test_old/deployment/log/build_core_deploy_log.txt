@@ -1,0 +1,12 @@
+Buildfile: C:\Mendix Development\CustomWidgets\reCAPTCHA\test\deployment\build_core.xml
+
+deploy:
+    [unzip] Expanding: C:\Program Files\Mendix\5.18.0\modeler\deployment.mxz into C:\Mendix Development\CustomWidgets\reCAPTCHA\test\deployment
+     [copy] Copying 2 files to C:\Mendix Development\CustomWidgets\reCAPTCHA\test\deployment\model\lib\userlib
+     [copy] Copying 8 files to C:\Mendix Development\CustomWidgets\reCAPTCHA\test\deployment\model\resources
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+
+
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="reCAPTCHA.widget.reCAPTCHA2" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+  <name>reCAPTCHA2</name>
+  <description>Protect your Mendix app from spam and abuse while letting real people pass through with ease.</description>
+
+  <icon>iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADIElEQVQ4EQXBTWhcVRiA4ff7zrl3JpNMYmpSSwvWGv8Q0Y1YS0FoYhErCC5ElIArEVdu3CgIdVc3WhBduBEsiuCirqTFaiGJqY2WViimagoytU1q5yeT+b/3nvP5PPLah9s4oBftYHmq9L4X/jMDRMmzjPaN2nD3THU1TfVckWdbAvT6gnqhiBF/YI/DO2U0Gm3+3Rzs6yeVFyRGTI2QRdrNLv0ieauUukuTY/bR3VX/taoB4FQQMwOgKIzXP9s52c6Tt0sOoigxz6lfvYKlY1hpkhiNqYqc3zudzOOUVq/Y7+s7kVIC732TnbozTBerqRENEBARJEmxGHFZj6QyQaMTjjgtTjknpdutfEx3eoFvL4yOrF4vFidSI5ph6hBNCLFgWL99EdUYMcKgR6WkNDphcauVv6wqLf3q/GDsxz/iydkphxngEkLev9mqbRxUSc9UH3jk6ca1MzMyYjVGKLIh3gmJUwQK/X1LX6z3/eNelRzPoC954/pfD+6b2l5r17vP7557qDo1Md2KtbXDRsCiYEWGIRiS+kh8ZszlCBDMEYeD9TcPpXHhyU7l05VGf+Vyq7P3wFNp19vH7a6NnAaNBmYZiBvI0srqKYFFAIuQplJMTmYb200OJ0jz+BdKrUVSz+3esne1XVOKihANEI2+7EIOACAefCJ+abk4Wi7H5szsXbyyUGG7X8/TcnL90gacvQIG3DMtoILPgiAiAJgZhcHc/eNf3vy3M99sGyLKoUehUnYvzT8WTi88ETh90bHyp5IHQZaXVz5PvL4hAlkeACHxQhFiqzdIvguF71Qneq+q6uxwpMd3jfNBtWL8fE25ekOR39Z++bXRHszlRbywZ2b82HBUYAaq4DSCRPLcAwYYZv4TRN+ZHresUjLk3LmfjtW2di6HYJsP75/+IS2nz4YQidEAAABQVbwXut3hqN/PZlWlA6Dd3uh7gc1y6rh1a+fonXr33RDiTVUBAEBVCKFob251Tqyv3ykXRdbJsowsy/DOKSKCKqgJvd7oRJGHs0miz1Uq6X3OqW+1+v80mu0lkfJSjEKSOEIAgP8BCn6gZunU/wIAAAAASUVORK5CYII=</icon>
+
+  <properties>
+        <property key="languageString" type="string" required="false" defaultValue="">
+            <caption>Language</caption>
+            <category>Appearance</category>
+            <description>Forces the widget to render in a specific language.</description>
+        </property>
+        <property key="themeString" type="enumeration" required="true" defaultValue="light">
+            <caption>Theme</caption>
+            <category>Appearance</category>
+            <description>The color theme of the widget.</description>
+            <enumerationValues>
+                <enumerationValue key="dark">dark</enumerationValue>
+                <enumerationValue key="light">light</enumerationValue>
+            </enumerationValues>
+        </property>
+        <property key="typeString" type="enumeration" required="true" defaultValue="image">
+            <caption>Type</caption>
+            <category>Appearance</category>
+            <description>The type of CAPTCHA to serve.</description>
+            <enumerationValues>
+                <enumerationValue key="audio">audio</enumerationValue>
+                <enumerationValue key="image">image</enumerationValue>
+            </enumerationValues>
+        </property>
+        <property key="sizeString" type="enumeration" required="true" defaultValue="normal">
+            <caption>Size</caption>
+            <category>Appearance</category>
+            <description>The size of the widget.</description>
+            <enumerationValues>
+                <enumerationValue key="compact">compact</enumerationValue>
+                <enumerationValue key="normal">normal</enumerationValue>
+            </enumerationValues>
+        </property>
+        <property key="tabIndexInteger" type="integer" required="true" defaultValue="0">
+            <caption>Tabindex</caption>
+            <category>Appearance</category>
+            <description>The tabindex of the widget and challenge. If other elements in your page use tabindex, it should be set to make user navigation easier.</description>
+        </property>
+        <property key="responseTokenAttribute" type="attribute" required="true">
+            <caption>Response Token</caption>
+            <category>Entity Context</category>
+            <description>The recaptcha response to verify server side.</description>
+            <attributeTypes>
+                <attributeType name="String"/>
+            </attributeTypes>
+        </property>
+        <property key="siteKeyEntity" type="entity" allowNonPersistableEntities="true" required="false" defaultValue="">
+            <caption>Sitekey Entity</caption>
+            <category>Sitekey</category>
+            <description></description>
+        </property>
+        <property key="siteKeyAttribute" type="attribute" entityProperty="siteKeyEntity" required="false" defaultValue="">
+            <caption>Sitekey attribute</caption>
+            <category>Sitekey</category>
+            <description></description>
+            <attributeTypes>
+                <attributeType name="String" />
+            </attributeTypes>
+        </property>
+        <property key="mfGetSiteKey" type="microflow" required="false" defaultValue="">
+            <caption>Sitekey Microflow</caption>
+            <category>Sitekey</category>
+            <description></description>
+            <returnType type="Object" entityProperty="siteKeyEntity" />
+        </property>
+	</properties>
+</widget>
