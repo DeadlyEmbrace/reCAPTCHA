@@ -53,14 +53,14 @@ public class Microflows
 			throw new MendixRuntimeException(e);
 		}
 	}
-	public static boolean sUB_GoogleRecaptcha_Siteverify_V1(IContext context, java.lang.String _responseToken, java.lang.String _challenge)
+	public static recaptcha.proxies.SiteKey gET_SnippetSiteKey(IContext context, recaptcha.proxies.TokenHelper _tokenHelper)
 	{
 		try
 		{
 			Map<java.lang.String, Object> params = new HashMap<java.lang.String, Object>();
-			params.put("ResponseToken", _responseToken);
-			params.put("Challenge", _challenge);
-			return (java.lang.Boolean)Core.execute(context, "reCAPTCHA.SUB_GoogleRecaptcha_Siteverify_V1", params);
+			params.put("TokenHelper", _tokenHelper == null ? null : _tokenHelper.getMendixObject());
+			IMendixObject result = (IMendixObject)Core.execute(context, "reCAPTCHA.GET_SnippetSiteKey", params);
+			return result == null ? null : recaptcha.proxies.SiteKey.initialize(context, result);
 		}
 		catch (CoreException e)
 		{

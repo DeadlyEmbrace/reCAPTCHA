@@ -15,11 +15,6 @@ public class Constants
 		return (java.lang.String)Core.getConfiguration().getConstantValue("reCAPTCHA.LogNodeName");
 	}
 
-	public static java.lang.String getSiteverifyURL_V1()
-	{
-		return (java.lang.String)Core.getConfiguration().getConstantValue("reCAPTCHA.SiteverifyURL_V1");
-	}
-
 	public static java.lang.String getSiteverifyURL_V2()
 	{
 		return (java.lang.String)Core.getConfiguration().getConstantValue("reCAPTCHA.SiteverifyURL_V2");
